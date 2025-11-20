@@ -21,7 +21,7 @@ app.use(express.json());
 // dBconnect();
 
 // import routes for TODO API
-let todoRoutes = require('./routes/todo');
+let todoRoutes = require('../routes/todo');
 
 // mounting routes of TODO API
 app.use('/api/v1/todo', todoRoutes);
