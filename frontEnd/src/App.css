@@ -1,13 +1,426 @@
-/* ---------- GLOBAL RESET ---------- */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
 }
 
-/* ---------- BODY ---------- */
+:root {
+  --bg-gradient: linear-gradient(135deg, #0f172a, #1e293b, #4f46e5);
+  --card-bg: rgba(15, 23, 42, 0.85);
+  --accent: #4f46e5;
+  --accent-soft: rgba(79, 70, 229, 0.18);
+  --accent-2: #22c55e;
+  --danger: #ef4444;
+  --text-main: #e5e7eb;
+  --text-muted: #9ca3af;
+  --border-subtle: rgba(148, 163, 184, 0.4);
+  --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.65);
+  --radius-xl: 18px;
+  --transition-fast: 0.18s ease-out;
+  --transition-slow: 0.35s ease-out;
+  --glass-blur: 18px;
+  --glow: 0 0 0 rgba(79, 70, 229, 0);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
+}
+
+/* ==== Background & Layout ==== */
 body {
+  background: radial-gradient(circle at top left, #1e293b, transparent),
+    radial-gradient(circle at bottom right, #4f46e5, transparent),
+    var(--bg-gradient);
+  color: var(--text-main);
+}
+
+/* Nice floating gradient blobs */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.35;
+  background: radial-gradient(
+      circle at 10% 20%,
+      rgba(56, 189, 248, 0.2),
+      transparent 55%
+    ),
+    radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.2), transparent 55%);
+  z-index: -1;
+}
+
+/* ==== App Container ==== */
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 16px;
+}
+
+/* Main glass card */
+.container {
+  width: 100%;
+  max-width: 780px;
+  margin-top: 22px;
+  padding: 20px 18px 24px;
+  border-radius: 24px;
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.96),
+    rgba(15, 23, 42, 0.88)
+  );
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(var(--glass-blur));
+  animation: cardEnter 0.6s ease-out forwards;
+  position: relative;
+  overflow: hidden;
+}
+
+.container::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: radial-gradient(
+      circle at top left,
+      rgba(79, 70, 229, 0.4),
+      transparent 60%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(34, 197, 94, 0.4),
+      transparent 60%
+    );
+  opacity: 0.08;
+  z-index: -1;
+}
+
+/* ==== Heading & Top Button ==== */
+.heading {
+  font-size: clamp(2.2rem, 4vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  background: linear-gradient(120deg, #e5e7eb, #a5b4fc, #22c55e);
+  -webkit-background-clip: text;
+  color: transparent;
+  text-align: center;
+  text-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+  animation: headingFloat 3s ease-in-out infinite;
+}
+
+.btn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform var(--transition-fast),
+    box-shadow var(--transition-fast), background var(--transition-fast),
+    color var(--transition-fast), opacity 0.16s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.2), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.4s ease-out;
+  pointer-events: none;
+}
+
+.btn:hover::before {
+  transform: translateX(120%);
+}
+
+.btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* Top "Create New Todo" button wrapper */
+.btn {
+  color: var(--text-main);
+}
+
+.create {
+  margin-top: 18px;
+  padding: 12px 26px;
+  background: linear-gradient(135deg, #4f46e5, #22c55e);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.4);
+}
+
+.create:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 18px 40px rgba(37, 99, 235, 0.6);
+}
+
+/* Center the top button */
+.btn {
+  margin-top: 16px;
+}
+.btn.create {
+  display: inline-flex;
+}
+.btn + .btn {
+  margin-left: 10px;
+}
+
+/* ==== Todos List ==== */
+.todos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* smooth scroll + styled scrollbar */
+.todos-container::-webkit-scrollbar {
+  width: 6px;
+}
+.todos-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.todos-container::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.6);
+  border-radius: 999px;
+}
+
+/* ==== Individual Todo Card ==== */
+.todo-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: var(--radius-xl);
+  background: radial-gradient(
+      circle at top left,
+      rgba(79, 70, 229, 0.3),
+      transparent 55%
+    ),
+    rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.8);
+  transform-origin: center;
+  animation: todoEnter 0.35s ease-out;
+  transition: transform var(--transition-slow),
+    box-shadow var(--transition-slow), border-color var(--transition-fast),
+    background 0.25s ease-out;
+}
+
+.todo-container:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.92);
+  border-color: rgba(129, 140, 248, 0.9);
+  background: radial-gradient(
+      circle at top right,
+      rgba(56, 189, 248, 0.28),
+      transparent 58%
+    ),
+    rgba(15, 23, 42, 0.98);
+}
+
+/* Todo title */
+.heading-container {
+  max-width: 60%;
+}
+
+.heading-container .heading {
+  font-size: 1.05rem;
+  background: none;
+  color: var(--text-main);
+  text-shadow: none;
+  letter-spacing: 0.01em;
+  animation: none;
+}
+
+.heading-container .heading::first-letter {
+  text-transform: uppercase;
+}
+
+/* Todo buttons */
+.btn-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.editBtn {
+  background: var(--accent-soft);
+  border: 1px solid rgba(129, 140, 248, 0.8);
+  color: #c7d2fe;
+}
+
+.editBtn:hover {
+  background: rgba(79, 70, 229, 0.75);
+  box-shadow: 0 0 20px rgba(79, 70, 229, 0.6);
+}
+
+.deleteBtn {
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.8);
+  color: #fecaca;
+}
+
+.deleteBtn:hover {
+  background: rgba(239, 68, 68, 0.9);
+  color: #fee2e2;
+  box-shadow: 0 0 20px rgba(248, 113, 113, 0.7);
+}
+
+/* ==== Input / Form ==== */
+.input-container {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 16px 16px;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+  animation: formEnter 0.4s ease-out;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: rgba(15, 23, 42, 0.88);
+  color: var(--text-main);
+  font-size: 0.98rem;
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow 0.18s ease-out,
+    background 0.18s ease-out, transform 0.15s ease-out;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input:focus {
+  border-color: rgba(129, 140, 248, 0.95);
+  background: rgba(15, 23, 42, 0.96);
+  box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.9),
+    0 12px 28px rgba(15, 23, 42, 0.9);
+  transform: translateY(-1px);
+}
+
+/* Save / Cancel buttons in form */
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.saveBtn {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ecfdf5;
+  box-shadow: 0 10px 24px rgba(22, 163, 74, 0.5);
+}
+
+.saveBtn:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 16px 32px rgba(21, 128, 61, 0.8);
+}
+
+.cancelBtn {
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.8);
+  color: var(--text-muted);
+}
+
+.cancelBtn:hover {
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+}
+
+/* ==== Animations ==== */
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes headingFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+    text-shadow: 0 16px 40px rgba(15, 23, 42, 0.9);
+  }
+  50% {
+    transform: translateY(-4px);
+    text-shadow: 0 22px 50px rgba(15, 23, 42, 1);
+  }
+}
+
+@keyframes todoEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes formEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ==== Responsive tweaks ==== */
+@media (max-width: 640px) {
+  .container {
+    padding: 16px 14px 18px;
+  }
+
+  .todo-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .heading-container {
+    max-width: 100%;
+  }
+
+  .btn-container {
+    align-self: flex-end;
+  }
+}
+
+/* body {
   background: linear-gradient(135deg, #667eea, #764ba2);
   min-height: 100vh;
   display: flex;
@@ -17,7 +430,13 @@ body {
   color: #fff;
 }
 
-/* ---------- APP CONTAINER ---------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+  
 .App {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(14px);
@@ -32,7 +451,6 @@ body {
   transform: translateY(-4px);
 }
 
-/* ---------- HEADING ---------- */
 .heading {
   text-align: center;
   font-size: 2rem;
@@ -44,7 +462,6 @@ body {
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
-/* ---------- BUTTONS (GLOBAL STYLE) ---------- */
 .btn {
   border: none;
   cursor: pointer;
@@ -55,9 +472,9 @@ body {
   transition: all 0.3s ease;
   color: #fff;
 }
-.create{
+.create {
   font-size: 2rem;
-  border:1px solid purple;
+  border: 1px solid purple;
   outline: none;
   border-radius: 10px;
   padding: 5px 10px;
@@ -67,7 +484,6 @@ body {
   transform: scale(1.05);
 }
 
-/* ---------- CREATE BUTTON ---------- */
 .btn button,
 .btn {
   display: flex;
@@ -83,14 +499,12 @@ body {
   background: linear-gradient(135deg, #43e97b, #38f9d7);
 }
 
-/* ---------- TODOS CONTAINER ---------- */
 .todos-container {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-/* ---------- SINGLE TODO CARD ---------- */
 .todo-container {
   display: flex;
   justify-content: space-between;
@@ -108,13 +522,11 @@ body {
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* ---------- TODO TEXT ---------- */
 .heading-container .heading {
   color: #fff;
   font-size: 1.1rem;
 }
 
-/* ---------- TODO BUTTONS ---------- */
 
 .editBtn {
   background: linear-gradient(135deg, #f7971e, #ffd200);
@@ -125,7 +537,6 @@ body {
   background: linear-gradient(135deg, #ff416c, #ff4b2b);
 }
 
-/* ---------- INPUT COMPONENT ---------- */
 .input-container {
   display: flex;
   flex-direction: column;
@@ -156,7 +567,6 @@ body {
   justify-content: center;
 }
 
-/* ---------- SAVE & CANCEL BUTTONS ---------- */
 .saveBtn {
   background: linear-gradient(135deg, #38f9d7, #43e97b);
 }
@@ -165,7 +575,6 @@ body {
   background: linear-gradient(135deg, #ff0844, #ffb199);
 }
 
-/* ---------- ANIMATIONS ---------- */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -177,7 +586,6 @@ body {
   }
 }
 
-/* ---------- RESPONSIVE ---------- */
 @media (max-width: 500px) {
   .App {
     width: 95%;
@@ -198,3 +606,4 @@ body {
     align-self: flex-end;
   }
 }
+ */

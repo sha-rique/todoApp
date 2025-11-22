@@ -3,6 +3,8 @@ import "./App.css";
 import Todos from "./components/Todos";
 import Input from "./components/Input";
 
+// const API = process.env.REACT_APP_API_URL;
+
 function App() {
   const todoObject = [
     {
@@ -19,22 +21,22 @@ function App() {
     },
   ];
 
-  //fetch data
-  async function fetchTodos() {
-    try {
-      const res = await fetch(API);
-      if (!res.ok) {
-        throw new Error("Failed to fetch todos");
-      }
-      const data = await res.json();
-      setTodos(data);
-    } catch (err) {
-      console.log("fetch Todos error", err);
-    }
-  }
-  useEffect(() => {
-    fetchTodos();
-  }, []);
+  // //fetch data
+  // async function fetchTodos() {
+  //   try {
+  //     const res = await fetch(API);
+  //     if (!res.ok) {
+  //       throw new Error("Failed to fetch todos");
+  //     }
+  //     const data = await res.json();
+  //     setTodos(data);
+  //   } catch (err) {
+  //     console.log("fetch Todos error", err);
+  //   }
+  // }
+  // useEffect(() => {
+  //   fetchTodos();
+  // }, []);
 
   const [show, setShow] = useState(false);
   const [todos, setTodos] = useState(todoObject);
